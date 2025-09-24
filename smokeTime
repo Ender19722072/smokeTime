@@ -4,10 +4,15 @@ import time
 import os
 from datetime import datetime, timedelta
 
+# ?? CONFIGURATION
 SMOKE_INTERVAL_MINUTES = 60
+WINDOW_WIDTH = 750
+WINDOW_HEIGHT = 100
+TIME_FORMAT = "%A, %d %B %Y at %H:%M:%S"
+
+# ?? File paths
 LAST_FILE = os.path.expanduser("~/.last_smoke_time")
 FIRST_FILE = os.path.expanduser("~/.first_smoke_time")
-TIME_FORMAT = "%A, %d %B %Y at %H:%M:%S"
 
 def write_first_smoke_time():
     if not os.path.exists(FIRST_FILE):
@@ -21,7 +26,14 @@ def write_last_smoke_time():
 def show_smoke_popup():
     root = tk.Tk()
     root.title("Smoke Break Reminder")
-    root.geometry("300x100")
+
+    # Center the window
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    x = (screen_width // 2) - (WINDOW_WIDTH // 2)
+    y = (screen_height // 2) - (WINDOW_HEIGHT // 2)
+
+    root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{x}+{y}")
     root.configure(bg="lightgray")
 
     label = tk.Label(root, text="Time for a smoke break!", font=("Arial", 14), bg="lightgray")
@@ -33,10 +45,11 @@ def show_smoke_popup():
     write_last_smoke_time()
 
 # ? Startup
-print("Smoke reminder is running every 60 minutes...")
+print(f"Smoke reminder is running every {SMOKE_INTERVAL_MINUTES} minutes...")
 write_first_smoke_time()
 write_last_smoke_time()
 
+# ? Main loop
 while True:
     show_smoke_popup()
     time.sleep(SMOKE_INTERVAL_MINUTES * 60)
