@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+import tkinter as tk
+import time
+import os
+from datetime import datetime, timedelta
+
+SMOKE_INTERVAL_MINUTES = 60
+LAST_FILE = os.path.expanduser("~/.last_smoke_time")
+FIRST_FILE = os.path.expanduser("~/.first_smoke_time")
+TIME_FORMAT = "%A, %d %B %Y at %H:%M:%S"
+
+def write_first_smoke_time():
+    if not os.path.exists(FIRST_FILE):
+        with open(FIRST_FILE, "w") as f:
+            f.write(datetime.now().strftime(TIME_FORMAT))
+
+def write_last_smoke_time():
+    with open(LAST_FILE, "w") as f:
+        f.write(datetime.now().strftime(TIME_FORMAT))
+
+def show_smoke_popup():
+    root = tk.Tk()
+    root.title("Smoke Break Reminder")
+    root.geometry("300x100")
+    root.configure(bg="lightgray")
+
+    label = tk.Label(root, text="Time for a smoke break!", font=("Arial", 14), bg="lightgray")
+    label.pack(expand=True)
+
+    root.bind("<Button-1>", lambda e: root.destroy())
+    root.mainloop()
+
+    write_last_smoke_time()
+
+# ? Startup
+print("Smoke reminder is running every 60 minutes...")
+write_first_smoke_time()
+write_last_smoke_time()
+
+while True:
+    show_smoke_popup()
+    time.sleep(SMOKE_INTERVAL_MINUTES * 60)
