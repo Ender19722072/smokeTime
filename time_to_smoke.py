@@ -28,16 +28,17 @@ def time_to_next_smoke(last_time):
     seconds = int(remaining.total_seconds() % 60)
     return f"{minutes} minute(s) and {seconds} second(s) until your next smoke break."
 
-def time_since_first_smoke(first_time):
-    if not first_time:
-        return "No first smoke break recorded."
-    elapsed = datetime.now() - first_time
+def time_since_last_smoke(last_time):
+    if not last_time:
+        return "No last smoke break recorded."
+    elapsed = datetime.now() - last_time
     minutes = int(elapsed.total_seconds() // 60)
-    return f"{minutes} minute(s) since your first smoke break."
+    seconds = int(elapsed.total_seconds() % 60)
+    return f"{minutes} minute(s) and {seconds} second(s) since your last smoke break."
 
 if __name__ == "__main__":
     last = read_time(LAST_FILE)
-    first = read_time(FIRST_FILE)
 
     print(time_to_next_smoke(last))
-    print(time_since_first_smoke(first))
+    print(time_since_last_smoke(last))
+
