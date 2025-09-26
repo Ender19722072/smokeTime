@@ -1,0 +1,5 @@
+[Thursday, 25 September 2025 at 13:29:14] ERROR: Failed to play sound: Command '['/usr/bin/python3', '/home/amou/.local/lib/python3.6/site-packages/playsound.py', 'n_sound.mp3']' returned non-zero exit status 1.
+[Thursday, 25 September 2025 at 13:29:39] ERROR: Failed to play sound: Command '['/usr/bin/python3', '/home/amou/.local/lib/python3.6/site-packages/playsound.py', 'n_sound.mp3']' returned non-zero exit status 1.
+[Thursday, 25 September 2025 at 13:30:42] ERROR: Failed to play sound: Command '['/usr/bin/python3', '/home/amou/.local/lib/python3.6/site-packages/playsound.py', 'n_sound.mp3']' returned non-zero exit status 1.
+[Thursday, 25 September 2025 at 14:19:54] INFO: SmokeTime manually interrupted by user.
+[Thursday, 25 September 2025 at 14:20:42] INFO: SmokeTime manually interrupted by user.
