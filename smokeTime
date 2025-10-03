@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import logging
-import pygame
+#   import pygame
 import tkinter as tk
 import time
 import os
 from datetime import datetime, timedelta
-from playsound import playsound
+#   from playsound import playsound
 import signal
 import sys
 
@@ -18,7 +18,7 @@ signal.signal(signal.SIGINT, handle_interrupt)
 
 
 # ?? CONFIGURATION
-SMOKE_INTERVAL_MINUTES = 1
+SMOKE_INTERVAL_MINUTES = 60
 WINDOW_WIDTH = 750
 WINDOW_HEIGHT = 100
 TIME_FORMAT = "%A, %d %B %Y at %H:%M:%S"
@@ -85,6 +85,9 @@ def show_smoke_popup():
     label.pack(expand=True)
 
     root.bind("<Button-1>", lambda e: root.destroy())
+
+    os.system('aplay n_sound.mp3')  # or use paplay, play, etc.
+
     root.mainloop()
 
     write_last_smoke_time()

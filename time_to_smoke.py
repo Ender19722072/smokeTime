@@ -42,3 +42,5 @@ if __name__ == "__main__":
     print(time_to_next_smoke(last))
     print(time_since_last_smoke(last))
 
+
+
