@@ -101,3 +101,4 @@ write_last_smoke_time()
 while True:
     show_smoke_popup()
     time.sleep(SMOKE_INTERVAL_MINUTES * 60)
+#just a git test
