@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Setup') {
+            steps {
+                sh 'python3 -m venv venv'
+                sh '. venv/bin/activate && pip install -r requirements.txt'
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                sh '. venv/bin/activate && flake8 .'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh '. venv/bin/activate && pytest -q'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'echo "Building Python app..."'
+                // Add packaging or Docker build here
+		/home/amou/PycharmProjects/ModyPythons/smokeTime/smokeTime.py
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'echo "Deploying application..."'
+                // Add SSH, Docker push, or cloud deploy commands
+            }
+        }
+    }
+}
+
