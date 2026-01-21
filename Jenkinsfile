@@ -6,7 +6,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo "Pulling source code..."
-                sh 'git checkout master'
+                sh 'git pull master'
             }
         }
 
