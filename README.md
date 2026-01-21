@@ -1,1 +1,1 @@
-mokeTime helps you log smoke breaks, track the time between them, and visualize your daily patterns. Whether you're trying to reduce smoking or simply stay aware of your habits, smokeTime gives you a clean and simple way to monitor your routine.
+SmokeTime helps you log smoke breaks, track the time between them, and visualize your daily patterns. Whether you're trying to reduce smoking or simply stay aware of your habits, smokeTime gives you a clean and simple way to monitor your routine.
