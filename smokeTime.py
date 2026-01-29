@@ -1,31 +1,30 @@
-#!/usr/bin/env python3
+##!/usr/bin/env python3
 import logging
-#   import pygame
 import tkinter as tk
 import time
 import os
 from datetime import datetime, timedelta
-#   from playsound import playsound
 import signal
 import sys
 
 def handle_interrupt(sig, frame):
     logging.info("SmokeTime manually interrupted by user.")
     print("SmokeTime interrupted. Exiting.")
+    cleanup_heartbeat()
     sys.exit(0)
 
 signal.signal(signal.SIGINT, handle_interrupt)
 
-
-# ?? CONFIGURATION
-SMOKE_INTERVAL_MINUTES = 60
+# CONFIGURATION
+SMOKE_INTERVAL_MINUTES = 2
 WINDOW_WIDTH = 750
 WINDOW_HEIGHT = 100
 TIME_FORMAT = "%A, %d %B %Y at %H:%M:%S"
 
-# ?? File paths
+# File paths
 LAST_FILE = os.path.expanduser("~/.last_smoke_time")
 FIRST_FILE = os.path.expanduser("~/.first_smoke_time")
+HEARTBEAT = os.path.expanduser("~/.smoketime_running")
 
 logging.basicConfig(
     filename='smokeTime.log',
@@ -33,7 +32,6 @@ logging.basicConfig(
     format='[%(asctime)s] %(levelname)s: %(message)s',
     datefmt='%A, %d %B %Y at %H:%M:%S'
 )
-
 
 def write_first_smoke_time():
     if not os.path.exists(FIRST_FILE):
@@ -49,30 +47,21 @@ def write_last_smoke_time():
     except Exception as e:
         print(f"[ERROR] Failed to write last smoke time: {e}")
 
+def create_heartbeat():
+    with open(HEARTBEAT, "w") as f:
+        f.write("running")
+
+def cleanup_heartbeat():
+    if os.path.exists(HEARTBEAT):
+        os.remove(HEARTBEAT)
 
 def show_smoke_popup():
     root = tk.Tk()
-    #root.title("Smoke Break Reminder")
-
     root.title("SmokeTime Reminder")
+
     tk.Label(root, text="Time for a break!").pack()
 
-    #play notification sound effect
-#    pygame.init()
-#    pygame.mixer.init()
-#    pygame.mixer.music.load('n_sound.mp3')
-#    pygame.mixer.music.play()
-
-
-#   try:
- #       playsound('n_sound.mp3')
- #       logging.info("Sound notification played successfully.")
- #   except Exception as e:
- #       logging.error(f"Failed to play sound: {e}")
-
-
-
-    # Center the window
+    # Center window
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     x = (screen_width // 2) - (WINDOW_WIDTH // 2)
@@ -86,18 +75,22 @@ def show_smoke_popup():
 
     root.bind("<Button-1>", lambda e: root.destroy())
 
-    os.system('aplay n_sound.mp3')  # or use paplay, play, etc.
+    os.system('aplay n_sound.mp3')
 
     root.mainloop()
 
     write_last_smoke_time()
 
-# ? Startup
+# Startup
 print(f"Smoke reminder is running every {SMOKE_INTERVAL_MINUTES} minutes...")
 write_first_smoke_time()
 write_last_smoke_time()
+create_heartbeat()
 
-# ? Main loop
-while True:
-    time.sleep(SMOKE_INTERVAL_MINUTES * 60)
-    show_smoke_popup()
+# Main loop
+try:
+    while True:
+        time.sleep(SMOKE_INTERVAL_MINUTES * 60)
+        show_smoke_popup()
+finally:
+    cleanup_heartbeat()
