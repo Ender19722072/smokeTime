@@ -6,7 +6,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo "Pulling source code..."
-                sh 'git pull master'
+                sh 'git pull origin master'
             }
         }
 
@@ -55,7 +55,7 @@ pipeline {
                     git config user.name "Jenkins CI"
                     git add .
                     git commit -m "Automated commit from Jenkins" || true
-                    git push origin HEAD:main || true
+                    git push origin HEAD:master || true
                 '''
             }
         }
