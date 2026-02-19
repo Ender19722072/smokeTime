@@ -18,7 +18,7 @@ signal.signal(signal.SIGINT, handle_interrupt)
 
 # CONFIGURATION
 SMOKE_INTERVAL_MINUTES = 60
-LAUNCH_TIME = 14
+LAUNCH_TIME = 12
 WINDOW_WIDTH = 750
 WINDOW_HEIGHT = 100
 TIME_FORMAT = "%A, %d %B %Y at %H:%M:%S"
