@@ -4,7 +4,7 @@ pipeline {
     stage('Checkout') {
       steps {
         echo 'Pulling source code...'
-        sh 'git pull origin main'
+        sh 'git pull '
       }
     }
 
