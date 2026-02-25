@@ -1,12 +1,14 @@
 pipeline {
   agent any
   stages {
-    stage('Checkout') {
-      steps {
-        echo 'Pulling source code...'
-        sh 'git pull '
-      }
-    }
+ #   stage('Checkout') {
+ #     steps {
+ #       echo 'Pulling source code...'
+ #       sh 'git pull '
+  #    }
+  #  }
+
+    options { skipDefaultCheckout() }
 
     stage('Build') {
       steps {
