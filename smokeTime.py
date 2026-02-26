@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import logging
 import tkinter as tk
 import time
@@ -58,12 +57,7 @@ def cleanup_heartbeat():
         os.remove(HEARTBEAT)
 
 # ---------------------------------------------------------
-# SOUND DISABLED ? LEFT HERE FOR FUTURE USE
-# ---------------------------------------------------------
-# def play_sound_async():
-#     def run():
-#         os.system("aplay n_sound.mp3 >/dev/null 2>&1")
-#     threading.Thread(target=run, daemon=True).start()
+# POPUPS (blocking, but run in separate threads)
 # ---------------------------------------------------------
 
 def show_smoke_popup():
@@ -82,16 +76,9 @@ def show_smoke_popup():
     label.pack(expand=True)
 
     root.bind("<Button-1>", lambda e: root.destroy())
-
-    # SOUND DISABLED
-    # play_sound_async()
-
     root.mainloop()
     write_last_smoke_time()
 
-# ---------------------------------------------------------
-# NEW: DAILY 12:00 NOON POPUP
-# ---------------------------------------------------------
 def show_eat_popup():
     root = tk.Tk()
     root.title("Lunch Reminder")
@@ -109,6 +96,37 @@ def show_eat_popup():
 
     root.bind("<Button-1>", lambda e: root.destroy())
     root.mainloop()
+
+def show_fruit_popup():
+    root = tk.Tk()
+    root.title("Fruit Reminder")
+
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    x = (screen_width // 2) - (WINDOW_WIDTH // 2)
+    y = (screen_height // 2) - (WINDOW_HEIGHT // 2)
+
+    root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{x}+{y}")
+    root.configure(bg="orange")
+
+    label = tk.Label(root, text="Time for fruit!", font=("Arial", 16, "bold"), bg="orange", fg="white")
+    label.pack(expand=True)
+
+    root.bind("<Button-1>", lambda e: root.destroy())
+    root.mainloop()
+
+# ---------------------------------------------------------
+# ASYNC WRAPPERS
+# ---------------------------------------------------------
+
+def show_smoke_popup_async():
+    threading.Thread(target=show_smoke_popup, daemon=True).start()
+
+def show_eat_popup_async():
+    threading.Thread(target=show_eat_popup, daemon=True).start()
+
+def show_fruit_popup_async():
+    threading.Thread(target=show_fruit_popup, daemon=True).start()
 
 # -----------------------------
 # COUNTDOWN FUNCTIONS
@@ -136,10 +154,14 @@ write_first_smoke_time()
 write_last_smoke_time()
 create_heartbeat()
 
-# Track whether today's lunch popup has been shown
+# Track daily lunch popup
 last_lunch_day = None
 
-# Main loop with 5-second countdown printing
+# Track fruit popup
+last_fruit_time = None
+FRUIT_INTERVAL_SECONDS = 3 * 60 * 60  # 3 hours
+
+# Main loop
 try:
     last_smoke_time = datetime.now()
 
@@ -153,14 +175,25 @@ try:
             # DAILY 12:00 CHECK
             if now.hour == LAUNCH_TIME and now.minute == 0:
                 if last_lunch_day != now.date():
-                    show_eat_popup()
+                    show_eat_popup_async()
                     last_lunch_day = now.date()
+
+            # FRUIT EVERY 3 HOURS EXCEPT 11:00?13:00
+            if not (11 <= now.hour < 13):
+                if last_fruit_time is None:
+                    last_fruit_time = now
+                else:
+                    elapsed_fruit = (now - last_fruit_time).total_seconds()
+                    if elapsed_fruit >= FRUIT_INTERVAL_SECONDS:
+                        show_fruit_popup_async()
+                        last_fruit_time = now
 
             print_countdown_loop(last_smoke_time)
             time.sleep(5)
 
-        show_smoke_popup()
+        show_smoke_popup_async()
         last_smoke_time = datetime.now()
 
 finally:
     cleanup_heartbeat()
+
