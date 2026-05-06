@@ -16,6 +16,10 @@ user_close_delay = Gauge("smoketime_user_close_delay_seconds", "Seconds user tak
 
 popup_timestamps = []
 
+# GLOBAL POPUP LOCK (ensures only one popup at a time)
+popup_lock = threading.Lock()
+
+
 def record_popup_event():
     now = time.time()
     popup_timestamps.append(now)
@@ -74,56 +78,56 @@ def cleanup_heartbeat():
     if os.path.exists(HEARTBEAT):
         os.remove(HEARTBEAT)
 
+
 # ---------------------------------------------------------
-# POPUP TEMPLATE WITH DELAY MEASUREMENT
+# POPUP TEMPLATE WITH LOCK (only one popup at a time)
 # ---------------------------------------------------------
 
 def popup_window(title, message, bg_color, fg_color="black"):
-    start_time = time.time()
+    with popup_lock:  # BLOCK until previous popup is closed
+        start_time = time.time()
 
-    root = tk.Tk()
-    root.title(title)
+        root = tk.Tk()
+        root.title(title)
 
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    x = (screen_width // 2) - (WINDOW_WIDTH // 2)
-    y = (screen_height // 2) - (WINDOW_HEIGHT // 2)
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        x = (screen_width // 2) - (WINDOW_WIDTH // 2)
+        y = (screen_height // 2) - (WINDOW_HEIGHT // 2)
 
-    root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{x}+{y}")
-    root.configure(bg=bg_color)
+        root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{x}+{y}")
+        root.configure(bg=bg_color)
 
-    label = tk.Label(root, text=message, font=("Arial", 16, "bold"), bg=bg_color, fg=fg_color)
-    label.pack(expand=True)
+        label = tk.Label(root, text=message, font=("Arial", 16, "bold"), bg=bg_color, fg=fg_color)
+        label.pack(expand=True)
 
-    def on_close(event=None):
-        end_time = time.time()
-        delay = end_time - start_time
-        user_close_delay.set(delay)
-        root.destroy()
+        def on_close(event=None):
+            end_time = time.time()
+            delay = end_time - start_time
+            user_close_delay.set(delay)
+            root.destroy()
 
-    root.bind("<Button-1>", on_close)
-    root.protocol("WM_DELETE_WINDOW", on_close)
+        root.bind("<Button-1>", on_close)
+        root.protocol("WM_DELETE_WINDOW", on_close)
 
-    root.mainloop()
+        root.mainloop()
 
-    record_popup_event()
+        record_popup_event()
 
 
 def show_smoke_popup():
     popup_window("SmokeTime Reminder", "Time for a smoke break!", "lightgray")
     write_last_smoke_time()
 
-
 def show_eat_popup():
     popup_window("Lunch Reminder", "Time to Eat!", "green", "white")
-
 
 def show_fruit_popup():
     popup_window("Fruit Reminder", "Time for fruit!", "orange", "white")
 
 
 # ---------------------------------------------------------
-# ASYNC WRAPPERS
+# ASYNC WRAPPERS (safe because popup_lock prevents overlap)
 # ---------------------------------------------------------
 
 def show_smoke_popup_async():
@@ -134,6 +138,7 @@ def show_eat_popup_async():
 
 def show_fruit_popup_async():
     threading.Thread(target=show_fruit_popup, daemon=True).start()
+
 
 # -----------------------------
 # COUNTDOWN FUNCTIONS
@@ -156,6 +161,7 @@ def print_countdown_loop(last_smoke_time):
         f"Until next break: {seconds_to_mmss(remaining)}"
     )
 
+
 # ---------------------------------------------------------
 # STARTUP
 # ---------------------------------------------------------
@@ -171,6 +177,7 @@ create_heartbeat()
 last_lunch_day = None
 last_fruit_time = None
 FRUIT_INTERVAL_SECONDS = 3 * 60 * 60  # 3 hours
+
 
 # ---------------------------------------------------------
 # MAIN LOOP
