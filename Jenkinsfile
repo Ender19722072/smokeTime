@@ -1,33 +1,19 @@
 pipeline {
   agent any
-
-  options {
-    // Always start with a clean workspace
-    skipDefaultCheckout()
-  }
-
   stages {
+ #   stage('Checkout') {
+ #     steps {
+ #       echo 'Pulling source code...'
+ #       sh 'git pull '
+  #    }
+  #  }
 
-    stage('Checkout') {
-      steps {
-        echo 'Fetching latest source code...'
-        checkout([
-          $class: 'GitSCM',
-          branches: [[name: 'main']],
-          userRemoteConfigs: [[
-            url: 'https://github.com/Ender19722072/smokeTime.git',
-            credentialsId: 'github'   // <-- Add this credential in Jenkins
-          ]]
-        ])
-      }
-    }
+    options { skipDefaultCheckout() }
 
     stage('Build') {
       steps {
         echo 'Building Docker image...'
-        sh '''
-          docker build --pull --no-cache -t smoke-time .
-        '''
+        sh 'docker build -t smoke-time .'
       }
     }
 
@@ -42,10 +28,10 @@ pipeline {
       steps {
         echo 'Running container...'
         sh '''
-          docker stop smoke-time || true
-          docker rm smoke-time || true
-          docker run -d --name smoke-time smoke-time
-        '''
+                    docker stop smoke-time || true
+                    docker rm smoke-time || true
+                    docker run -d --name smoke-time smoke-time
+                '''
       }
     }
 
@@ -54,5 +40,25 @@ pipeline {
         echo 'Deploying application...'
       }
     }
+
+    stage('Commit Changes') {
+      when {
+        expression {
+          return fileExists('smokeTime.log')
+        }
+
+      }
+      steps {
+        echo 'Committing generated files...'
+        sh '''
+                    git config user.email "jenkins@ci"
+                    git config user.name "Jenkins CI"
+                    git add .
+                    git commit -m "Automated commit from Jenkins" || true
+                    git push origin HEAD:main || true
+                '''
+      }
+    }
+
   }
 }
